@@ -5,10 +5,14 @@
 -- later. Persists through GHCi reloads.
 
 module Foreign.Store
-  (newStore
+  (-- * Foreign stores
+   writeStore
+  ,newStore
   ,lookupStore
   ,readStore
   ,deleteStore
+  ,storeAction
+  ,withStore
   ,Store(..))
   where
 
@@ -18,6 +22,7 @@ import Data.Word
 import Foreign.Ptr
 import Foreign.StablePtr
 
+-- | An exception when working with stores.
 data StoreException
   = StoreNotFound
   deriving (Show,Eq,Typeable)
@@ -29,7 +34,7 @@ data Store a =
   Store Word32
   deriving (Show,Eq)
 
--- | Lookup from the store.
+-- | Lookup from the store if an index is allocated.
 lookupStore :: Word32 -> IO (Maybe (Store a))
 lookupStore i =
   do r <- x_lookup i
@@ -37,17 +42,29 @@ lookupStore i =
         then return Nothing
         else return (Just (Store i))
 
--- | Make a new store. The internal vector of stores grows in
--- side. When stores are deleted the vector does not shrink, but old
--- slots are re-used.
+-- | Allocates or finds an unallocated store. The index is random. The
+-- internal vector of stores grows in size. When stores are deleted
+-- the vector does not shrink, but old slots are re-used.
 newStore :: a -> IO (Store a)
 newStore a =
   do sptr <- newStablePtr a
      i <- x_store sptr
      return (Store i)
 
--- | Read from the store. If the store has been deleted, this will
--- throw an exception.
+-- | Write to the store at the given index. If a store doesn't exist,
+-- creates one and resizes the store vector to fit. If there is
+-- already a store at the given index, deletes that store with
+-- 'deleteStore' before replacing it.
+writeStore :: Store a -> a -> IO (Store a)
+writeStore s@(Store i) a =
+  do existing <- lookupStore i
+     maybe (return ()) deleteStore existing
+     sptr <- newStablePtr a
+     x_set i sptr
+     return s
+
+-- | Read from the store. If the store has been deleted or is
+-- unallocated, this will throw an exception.
 readStore :: Store a -> IO a
 readStore (Store i) =
   do sptr <- x_get i
@@ -65,9 +82,26 @@ deleteStore (Store i) = do
      else do freeStablePtr sptr
              x_delete i
 
+-- | Run the action and store the result.
+storeAction :: Store a -> IO a -> IO a
+storeAction s m =
+  do v <- m
+     _ <- writeStore s v
+     return v
+
+-- | Run the action and store the result.
+withStore :: Store a -> (a -> IO b) -> IO b
+withStore s f =
+  do v <- readStore s
+     f v
+
 foreign import ccall
   "x-helpers.h x_store"
   x_store :: StablePtr a -> IO Word32
+
+foreign import ccall
+  "x-helpers.h x_set"
+  x_set :: Word32 -> StablePtr a -> IO ()
 
 foreign import ccall
   "x-helpers.h x_get"
