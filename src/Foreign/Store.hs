@@ -55,13 +55,13 @@ newStore a =
 -- creates one and resizes the store vector to fit. If there is
 -- already a store at the given index, deletes that store with
 -- 'deleteStore' before replacing it.
-writeStore :: Store a -> a -> IO (Store a)
-writeStore s@(Store i) a =
+writeStore :: Store a -> a -> IO ()
+writeStore (Store i) a =
   do existing <- lookupStore i
      maybe (return ()) deleteStore existing
      sptr <- newStablePtr a
      x_set i sptr
-     return s
+     return ()
 
 -- | Read from the store. If the store has been deleted or is
 -- unallocated, this will throw an exception.
