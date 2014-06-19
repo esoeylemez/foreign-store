@@ -86,7 +86,7 @@ deleteStore (Store i) = do
 storeAction :: Store a -> IO a -> IO a
 storeAction s m =
   do v <- m
-     _ <- writeStore s v
+     writeStore s v
      return v
 
 -- | Run the action and store the result.
