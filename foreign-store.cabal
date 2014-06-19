@@ -10,6 +10,7 @@ copyright:           2014 Chris Done
 category:            Development
 build-type:          Simple
 cabal-version:       >=1.8
+Homepage:            https://github.com/chrisdone/foreign-store
 
 library
   hs-source-dirs:    src/
@@ -18,3 +19,7 @@ library
   build-depends:     base >= 4 && <5
   c-sources:         cbits/store.c
   include-dirs:      cbits
+
+source-repository head
+  type:     git
+  location: git://github.com/chrisdone/foreign-store.git
