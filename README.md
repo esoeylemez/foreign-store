@@ -1,4 +1,4 @@
-foreign-store
+foreign-store [![Hackage](https://img.shields.io/hackage/v/foreign-store.svg?style=flat)](https://hackage.haskell.org/package/foreign-store)
 =====
 
 Store a stable pointer in a foreign context to be retrieved
