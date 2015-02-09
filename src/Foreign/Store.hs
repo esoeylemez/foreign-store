@@ -46,6 +46,7 @@ lookupStore i =
 -- | Allocates or finds an unallocated store. The index is random. The
 -- internal vector of stores grows in size. When stores are deleted
 -- the vector does not shrink, but old slots are re-used.
+--
 -- Not thread-safe.
 newStore :: a -> IO (Store a)
 newStore a =
@@ -57,6 +58,7 @@ newStore a =
 -- creates one and resizes the store vector to fit. If there is
 -- already a store at the given index, deletes that store with
 -- 'deleteStore' before replacing it.
+--
 -- Not thread-safe.
 writeStore :: Store a -> a -> IO ()
 writeStore (Store i) a =
@@ -68,6 +70,7 @@ writeStore (Store i) a =
 
 -- | Read from the store. If the store has been deleted or is
 -- unallocated, this will throw an exception.
+--
 -- Not thread-safe.
 readStore :: Store a -> IO a
 readStore (Store i) =
@@ -77,7 +80,9 @@ readStore (Store i) =
         else deRefStablePtr sptr
 
 -- | Frees the stable pointer for GC and frees up the slot in the
--- store. Deleting an already deleted store is a no-op.
+-- store. Deleting an already deleted store is a no-op. But remember
+-- that store numbers are re-used.
+--
 -- Not thread-safe.
 deleteStore :: Store a -> IO ()
 deleteStore (Store i) = do
@@ -94,7 +99,7 @@ storeAction s m =
      writeStore s v
      return v
 
--- | Run the action and store the result.
+-- | Run the action with the value in the store.
 withStore :: Store a -> (a -> IO b) -> IO b
 withStore s f =
   do v <- readStore s
