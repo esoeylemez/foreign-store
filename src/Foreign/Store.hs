@@ -31,8 +31,8 @@ data StoreException
 instance Exception StoreException
 
 -- | A hideously unsafe store. Only for use if you are suave.
-data Store a =
-  Store !Word32
+newtype Store a =
+  Store Word32
   deriving (Show,Eq)
 
 -- | Lookup from the store if an index is allocated.
@@ -94,7 +94,7 @@ storeAction s m =
      writeStore s v
      return v
 
--- | Run the action with the value in the store.
+-- | Run the action and store the result.
 withStore :: Store a -> (a -> IO b) -> IO b
 withStore s f =
   do v <- readStore s
