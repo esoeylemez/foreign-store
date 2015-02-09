@@ -13,7 +13,8 @@ module Foreign.Store
   ,deleteStore
   ,storeAction
   ,withStore
-  ,Store(..))
+  ,Store(..)
+  ,StoreException(..))
   where
 
 import Control.Exception
@@ -31,7 +32,7 @@ instance Exception StoreException
 
 -- | A hideously unsafe store. Only for use if you are suave.
 data Store a =
-  Store Word32
+  Store !Word32
   deriving (Show,Eq)
 
 -- | Lookup from the store if an index is allocated.
@@ -93,7 +94,7 @@ storeAction s m =
      writeStore s v
      return v
 
--- | Run the action and store the result.
+-- | Run the action with the value in the store.
 withStore :: Store a -> (a -> IO b) -> IO b
 withStore s f =
   do v <- readStore s
