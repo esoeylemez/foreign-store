@@ -36,6 +36,8 @@ newtype Store a =
   deriving (Show,Eq)
 
 -- | Lookup from the store if an index is allocated.
+--
+-- Not thread-safe.
 lookupStore :: Word32 -> IO (Maybe (Store a))
 lookupStore i =
   do r <- x_lookup i
@@ -93,6 +95,8 @@ deleteStore (Store i) = do
              x_delete i
 
 -- | Run the action and store the result.
+--
+-- Not thread-safe.
 storeAction :: Store a -> IO a -> IO a
 storeAction s m =
   do v <- m
@@ -100,6 +104,8 @@ storeAction s m =
      return v
 
 -- | Run the action with the value in the store.
+--
+-- Not thread-safe.
 withStore :: Store a -> (a -> IO b) -> IO b
 withStore s f =
   do v <- readStore s
