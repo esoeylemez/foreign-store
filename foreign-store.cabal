@@ -1,5 +1,5 @@
 name:                foreign-store
-version:             0.2
+version:             0.2.1
 synopsis:            Store a stable pointer in a foreign context to be retrieved later.
 description:         Store a stable pointer in a foreign context to be retrieved later. Persists through GHCi reloads.
 license:             BSD3
