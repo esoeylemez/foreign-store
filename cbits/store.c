@@ -29,7 +29,7 @@ void x_set(uint32_t index,void*value) {
   if (index + 1 > size) {
     size_t new_size = index + 1;
     values = realloc(values,new_size * sizeof(void*));
-    memset(values + size,0,new_size - size);
+    memset(values + size,0,(new_size - size)*sizeof(void*));
     size = new_size;
   }
   values[index] = value;
