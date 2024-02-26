@@ -1,5 +1,5 @@
 name:                foreign-store
-version:             0.2
+version:             0.2.1
 synopsis:            Store a stable pointer in a foreign context to be retrieved later.
 description:         Store a stable pointer in a foreign context to be retrieved later. Persists through GHCi reloads.
 license:             BSD3
@@ -9,7 +9,7 @@ maintainer:          chrisdone@gmail.com
 copyright:           2014 Chris Done
 category:            Development
 build-type:          Simple
-cabal-version:       >=1.8
+cabal-version: 1.12
 Homepage:            https://github.com/chrisdone/foreign-store
 
 library
@@ -19,6 +19,7 @@ library
   build-depends:     base >= 4 && <5
   c-sources:         cbits/store.c
   include-dirs:      cbits
+  default-language: Haskell2010
 
 source-repository head
   type:     git
